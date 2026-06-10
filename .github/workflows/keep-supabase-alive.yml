@@ -1,0 +1,47 @@
+name: Keep Supabase Alive
+
+# Runs every 5 days to prevent Supabase free-tier auto-pause (7 days inactivity)
+on:
+  schedule:
+    - cron: '0 8 */5 * *'  # Every 5 days at 8:00 AM UTC
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase to keep it alive
+        run: |
+          echo "Pinging Supabase to prevent auto-pause..."
+          
+          # Ping the Supabase REST API (public endpoint, no auth needed for health check)
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+          
+          echo "HTTP Status: $HTTP_STATUS"
+          
+          if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 400 ]; then
+            echo "✅ Supabase is alive and responding!"
+          else
+            echo "⚠️ Supabase returned status $HTTP_STATUS — it may be paused."
+            echo "Visit https://supabase.com/dashboard to restore the project."
+            exit 1
+          fi
+          
+      - name: Ping HuggingFace Model API
+        run: |
+          echo "Pinging HuggingFace Spaces to keep model warm..."
+          
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://ichikanakanoo-safebite-scanner.hf.space/docs" \
+            --max-time 30)
+          
+          echo "HuggingFace HTTP Status: $HTTP_STATUS"
+          
+          if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 400 ]; then
+            echo "✅ HuggingFace model is alive!"
+          else
+            echo "⚠️ HuggingFace returned status $HTTP_STATUS"
+          fi
