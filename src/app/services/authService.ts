@@ -2,6 +2,7 @@
 
 import { supabase } from "./supabaseClient";
 import type { Session, User, AuthError, Subscription } from "@supabase/supabase-js";
+import { Capacitor } from "@capacitor/core";
 import {
     sanitizeEmail,
     sanitizeDisplayName,
@@ -88,12 +89,16 @@ export const authService = {
                 };
             }
 
+            const redirectUrl = Capacitor.isNativePlatform()
+                ? "safebite://login"
+                : `${window.location.origin}/login`;
+
             const { data, error } = await supabase.auth.signUp({
                 email: cleanEmail,
                 password,
                 options: {
                     data: { display_name: cleanName },
-                    emailRedirectTo: `${window.location.origin}/login`,
+                    emailRedirectTo: redirectUrl,
                 },
             });
 
@@ -175,8 +180,11 @@ export const authService = {
     async resetPassword(email: string): Promise<{ error: AuthError | null }> {
         try {
             const cleanEmail = sanitizeEmail(email);
+            const redirectUrl = Capacitor.isNativePlatform()
+                ? "safebite://reset-password"
+                : `${window.location.origin}/reset-password`;
             const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
-                redirectTo: `${window.location.origin}/reset-password`,
+                redirectTo: redirectUrl,
             });
             return { error: error ? sanitizeAuthError(error) : null };
         } catch {
@@ -208,11 +216,14 @@ export const authService = {
     async resendConfirmationEmail(email: string): Promise<{ error: AuthError | null }> {
         try {
             const cleanEmail = sanitizeEmail(email);
+            const redirectUrl = Capacitor.isNativePlatform()
+                ? "safebite://login"
+                : `${window.location.origin}/login`;
             const { error } = await supabase.auth.resend({
                 type: "signup",
                 email: cleanEmail,
                 options: {
-                    emailRedirectTo: `${window.location.origin}/login`,
+                    emailRedirectTo: redirectUrl,
                 },
             });
             return { error: error ? sanitizeAuthError(error) : null };

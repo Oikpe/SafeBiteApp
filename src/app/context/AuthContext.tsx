@@ -12,6 +12,7 @@ import { Capacitor } from "@capacitor/core";
 import { App as CapApp } from "@capacitor/app";
 import { authService } from "../services/authService";
 import { supabase } from "../services/supabaseClient";
+import { router } from "../routes";
 
 interface AuthState {
     user: User | null;
@@ -96,9 +97,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     const code = url.searchParams.get("code");
                     if (code && isMounted) {
                         await supabase.auth.exchangeCodeForSession(code);
+                        if (url.hostname === "reset-password" || url.pathname.includes("reset-password")) {
+                            router.navigate("/reset-password");
+                        }
                     }
-                } catch {
-
+                } catch (err) {
+                    console.error("Deep link error:", err);
                 }
             });
             deepLinkCleanup = () => { listener.then(h => h.remove()); };
