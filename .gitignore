@@ -1,0 +1,62 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.output/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE / Editor
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Capacitor native builds
+android/
+ios/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# AI agent / assistant files
+.gemini/
+.agents/
+.agent/
+_agents/
+_agent/
+
+# Misc
+*.tgz
+.cache/
+
+# Python
+.venv/
+model/.venv/
+__pycache__/
+*.pyc
+
+# Training data & notebooks
+menu_restoran_images/
+*.ipynb
+.ipynb_checkpoints/
+
+# Project misc
+Screenshot*
